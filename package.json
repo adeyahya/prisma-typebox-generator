@@ -73,6 +73,6 @@
     "trailingComma": "all"
   },
   "bin": {
-    "prisma-json-schema-generator": "dist/cli.js"
+    "prisma-typebox-generator": "dist/cli.js"
   }
 }

@@ -27,7 +27,7 @@ yarn add -D prisma-typebox-generator
 **2. Add the generator to the schema**
 
 ```prisma
-generator jsonSchema {
+generator typebox {
   provider = "prisma-typebox-generator"
 }
 ```
@@ -35,7 +35,7 @@ generator jsonSchema {
 With a custom output path (default=./typebox)
 
 ```prisma
-generator jsonSchema {
+generator typebox {
   provider = "prisma-typebox-generator"
   output = "custom-output-path"
 }
