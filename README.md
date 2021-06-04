@@ -41,15 +41,6 @@ generator jsonSchema {
 }
 ```
 
-Additional options
-
-```prisma
-generator jsonSchema {
-  provider = "prisma-typebox-generator"
-  keepRelationScalarFields = "true"
-}
-```
-
 **3. Run generation**
 
 prisma:
