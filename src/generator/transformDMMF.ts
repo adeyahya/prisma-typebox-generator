@@ -2,6 +2,7 @@ import type { DMMF } from '@prisma/generator-helper';
 
 const transformField = (field: DMMF.Field) => {
   const tokens = [field.name + ':'];
+  const deps = new Set();
 
   if (['Int', 'Float'].includes(field.type)) {
     tokens.push('Type.Number()');
@@ -10,7 +11,8 @@ const transformField = (field: DMMF.Field) => {
   } else if (field.type === 'Boolean') {
     tokens.push('Type.Boolean()');
   } else {
-    return '';
+    tokens.push(`::${field.type}::`);
+    deps.add(field.type);
   }
 
   if (field.isList) {
@@ -18,12 +20,12 @@ const transformField = (field: DMMF.Field) => {
     tokens.splice(tokens.length, 0, ')');
   }
 
-  if (!field.isRequired) {
+  if (!field.isRequired || field.hasDefaultValue) {
     tokens.splice(1, 0, 'Type.Optional(');
     tokens.splice(tokens.length, 0, ')');
   }
 
-  return tokens.join(' ').concat('\n');
+  return { str: tokens.join(' ').concat('\n'), deps };
 };
 
 const transformFields = (fields: DMMF.Field[]) => {
@@ -31,7 +33,10 @@ const transformFields = (fields: DMMF.Field[]) => {
   const _fields: string[] = [];
 
   fields.map(transformField).forEach((field) => {
-    _fields.push(field);
+    _fields.push(field.str);
+    [...field.deps].forEach((d) => {
+      dependencies.add(d);
+    });
   });
 
   return {
@@ -40,16 +45,23 @@ const transformFields = (fields: DMMF.Field[]) => {
   };
 };
 
-const transformModel = (model: DMMF.Model) => {
+const transformModel = (model: DMMF.Model, dependant: string | null = null) => {
   const fields = transformFields(model.fields);
-
-  return [
-    `import {Type, Static} from '@sinclair/typebox'\n`,
-    `\nexport const ${model.name} = Type.Object({\n\t`,
+  let raw = [
+    `${dependant ? '' : `export const ${model.name} = `}Type.Object({\n\t`,
     fields.rawString,
-    '})\n',
-    `\nexport type ${model.name}Type = Static<typeof ${model.name}>`,
-  ].join('');
+    '})',
+  ].join('\n');
+
+  if (typeof dependant === 'string') {
+    const re = new RegExp(`.+::${dependant}.+\n`);
+    raw = raw.replace(re, '');
+  }
+
+  return {
+    raw,
+    deps: fields.dependencies,
+  };
 };
 
 export const transformEnum = (enm: DMMF.DatamodelEnum) => {
@@ -58,7 +70,6 @@ export const transformEnum = (enm: DMMF.DatamodelEnum) => {
     .join('');
 
   return [
-    "import {Type, Static} from '@sinclair/typebox'\n",
     `export const ${enm.name}Const = {`,
     values,
     '}\n',
@@ -69,18 +80,46 @@ export const transformEnum = (enm: DMMF.DatamodelEnum) => {
 
 export function transformDMMF(dmmf: DMMF.Document) {
   const { models, enums } = dmmf.datamodel;
+  const importStatements = new Set([
+    'import {Type, Static} from "@sinclair/typebox"',
+  ]);
 
   return [
     ...models.map((model) => {
+      let { raw, deps } = transformModel(model);
+
+      [...deps].forEach((d) => {
+        const depsModel = models.find((m) => m.name === d) as DMMF.Model;
+        if (depsModel) {
+          const replacer = transformModel(depsModel, model.name);
+          const re = new RegExp(`::${d}::`, 'gm');
+          raw = raw.replace(re, replacer.raw);
+        }
+      });
+
+      enums.forEach((enm) => {
+        const re = new RegExp(`::${enm.name}::`, 'gm');
+        if (raw.match(re)) {
+          raw = raw.replace(re, enm.name);
+          importStatements.add(`import { ${enm.name} } from './${enm.name}'`);
+        }
+      });
+
       return {
         name: model.name,
-        rawString: transformModel(model),
+        rawString: [
+          [...importStatements].join('\n'),
+          raw,
+          `export type ${model.name}Type = Static<typeof ${model.name}>`,
+        ].join('\n\n'),
       };
     }),
     ...enums.map((enm) => {
       return {
         name: enm.name,
-        rawString: transformEnum(enm),
+        rawString:
+          'import {Type, Static} from "@sinclair/typebox"\n\n' +
+          transformEnum(enm),
       };
     }),
   ];
