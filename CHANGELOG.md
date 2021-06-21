@@ -1,3 +1,16 @@
+# [2.0.0](https://github.com/adeyahya/prisma-typebox-generator/compare/v1.0.1...v2.0.0) (2021-06-21)
+
+
+### Features
+
+* relation support ([574c381](https://github.com/adeyahya/prisma-typebox-generator/commit/574c381b8e94a47520c4d885a23ac6cf9701487f))
+
+
+### BREAKING CHANGES
+
+* this change might break your current implementation
+that uses omit, pick, or extend
+
 ## [1.0.1](https://github.com/adeyahya/prisma-typebox-generator/compare/v1.0.0...v1.0.1) (2021-06-04)
 
 
