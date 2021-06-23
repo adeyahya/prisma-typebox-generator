@@ -45,17 +45,19 @@ const transformFields = (fields: DMMF.Field[]) => {
   };
 };
 
-const transformModel = (model: DMMF.Model, dependant: string | null = null) => {
+const transformModel = (model: DMMF.Model, models?: DMMF.Model[]) => {
   const fields = transformFields(model.fields);
   let raw = [
-    `${dependant ? '' : `export const ${model.name} = `}Type.Object({\n\t`,
+    `${models ? '' : `export const ${model.name} = `}Type.Object({\n\t`,
     fields.rawString,
     '})',
   ].join('\n');
 
-  if (typeof dependant === 'string') {
-    const re = new RegExp(`.+::${dependant}.+\n`);
-    raw = raw.replace(re, '');
+  if (Array.isArray(models)) {
+    models.forEach((md) => {
+      const re = new RegExp(`.+::${md.name}.+\n`, 'gm');
+      raw = raw.replace(re, '');
+    });
   }
 
   return {
@@ -91,7 +93,7 @@ export function transformDMMF(dmmf: DMMF.Document) {
       [...deps].forEach((d) => {
         const depsModel = models.find((m) => m.name === d) as DMMF.Model;
         if (depsModel) {
-          const replacer = transformModel(depsModel, model.name);
+          const replacer = transformModel(depsModel, models);
           const re = new RegExp(`::${d}::`, 'gm');
           raw = raw.replace(re, replacer.raw);
         }
