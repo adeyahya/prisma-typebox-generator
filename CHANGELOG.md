@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/adeyahya/prisma-typebox-generator/compare/v2.0.0...v2.0.1) (2021-06-23)
+
+
+### Bug Fixes
+
+* bug on multiple relation ([51ba403](https://github.com/adeyahya/prisma-typebox-generator/commit/51ba403f9ce3c1446b5746ff8ec3131dfa558d4a))
+
 # [2.0.0](https://github.com/adeyahya/prisma-typebox-generator/compare/v1.0.1...v2.0.0) (2021-06-21)
 
 
