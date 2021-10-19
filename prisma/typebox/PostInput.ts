@@ -1,11 +1,11 @@
 import { Type, Static } from "@sinclair/typebox";
 import { Role } from "./Role";
 
-export const Post = Type.Object({
-  id: Type.Number(),
+export const PostInput = Type.Object({
+  id: Type.Optional(Type.Number()),
   user: Type.Optional(
     Type.Object({
-      id: Type.Number(),
+      id: Type.Optional(Type.Number()),
       createdAt: Type.Optional(Type.String()),
       email: Type.String(),
       weight: Type.Optional(Type.Number()),
@@ -20,4 +20,4 @@ export const Post = Type.Object({
   userId: Type.Optional(Type.Number()),
 });
 
-export type PostType = Static<typeof Post>;
+export type PostInputType = Static<typeof PostInput>;
