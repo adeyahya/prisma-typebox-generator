@@ -27,15 +27,33 @@ generatorHandler({
         });
         await Promise.all(
           payload.map((n) => {
-            return fs.promises.writeFile(
-              path.join(outputDir, n.name + '.ts'),
-              prettier.format(n.rawString, {
-                parser: 'babel-ts',
-              }),
-              {
-                encoding: 'utf-8',
-              },
+            const fsPromises = [];
+            fsPromises.push(
+              fs.promises.writeFile(
+                path.join(outputDir, n.name + '.ts'),
+                prettier.format(n.rawString, {
+                  parser: 'babel-ts',
+                }),
+                {
+                  encoding: 'utf-8',
+                },
+              ),
             );
+            if (n.inputRawString) {
+              fsPromises.push(
+                fs.promises.writeFile(
+                  path.join(outputDir, n.name + 'Input.ts'),
+                  prettier.format(n.inputRawString, {
+                    parser: 'babel-ts',
+                  }),
+                  {
+                    encoding: 'utf-8',
+                  },
+                ),
+              );
+            }
+
+            return Promise.all(fsPromises);
           }),
         );
       } catch (e) {

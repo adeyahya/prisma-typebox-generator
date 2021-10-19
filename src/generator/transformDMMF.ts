@@ -2,6 +2,7 @@ import type { DMMF } from '@prisma/generator-helper';
 
 const transformField = (field: DMMF.Field) => {
   const tokens = [field.name + ':'];
+  let inputTokens = [];
   const deps = new Set();
 
   if (['Int', 'Float'].includes(field.type)) {
@@ -20,20 +21,36 @@ const transformField = (field: DMMF.Field) => {
     tokens.splice(tokens.length, 0, ')');
   }
 
-  if (!field.isRequired || field.hasDefaultValue) {
-    tokens.splice(1, 0, 'Type.Optional(');
-    tokens.splice(tokens.length, 0, ')');
+  inputTokens = [...tokens];
+
+  // @id cannot be optional except for input if it's auto increment
+  if (field.isId && (field?.default as any)?.name === 'autoincrement') {
+    inputTokens.splice(1, 0, 'Type.Optional(');
+    inputTokens.splice(inputTokens.length, 0, ')');
   }
 
-  return { str: tokens.join(' ').concat('\n'), deps };
+  if ((!field.isRequired || field.hasDefaultValue) && !field.isId) {
+    tokens.splice(1, 0, 'Type.Optional(');
+    tokens.splice(tokens.length, 0, ')');
+    inputTokens.splice(1, 0, 'Type.Optional(');
+    inputTokens.splice(inputTokens.length, 0, ')');
+  }
+
+  return {
+    str: tokens.join(' ').concat('\n'),
+    strInput: inputTokens.join(' ').concat('\n'),
+    deps,
+  };
 };
 
 const transformFields = (fields: DMMF.Field[]) => {
   let dependencies = new Set();
   const _fields: string[] = [];
+  const _inputFields: string[] = [];
 
   fields.map(transformField).forEach((field) => {
     _fields.push(field.str);
+    _inputFields.push(field.strInput);
     [...field.deps].forEach((d) => {
       dependencies.add(d);
     });
@@ -42,6 +59,7 @@ const transformFields = (fields: DMMF.Field[]) => {
   return {
     dependencies,
     rawString: _fields.filter((f) => !!f).join(','),
+    rawInputString: _inputFields.filter((f) => !!f).join(','),
   };
 };
 
@@ -52,16 +70,24 @@ const transformModel = (model: DMMF.Model, models?: DMMF.Model[]) => {
     fields.rawString,
     '})',
   ].join('\n');
+  let inputRaw = [
+    `${models ? '' : `export const ${model.name}Input = `}Type.Object({\n\t`,
+    fields.rawInputString,
+    '})',
+  ].join('\n');
 
   if (Array.isArray(models)) {
     models.forEach((md) => {
       const re = new RegExp(`.+::${md.name}.+\n`, 'gm');
+      const inputRe = new RegExp(`.+::${md.name}.+\n`, 'gm');
       raw = raw.replace(re, '');
+      inputRaw = inputRaw.replace(inputRe, '');
     });
   }
 
   return {
     raw,
+    inputRaw,
     deps: fields.dependencies,
   };
 };
@@ -88,7 +114,7 @@ export function transformDMMF(dmmf: DMMF.Document) {
 
   return [
     ...models.map((model) => {
-      let { raw, deps } = transformModel(model);
+      let { raw, inputRaw, deps } = transformModel(model);
 
       [...deps].forEach((d) => {
         const depsModel = models.find((m) => m.name === d) as DMMF.Model;
@@ -96,6 +122,7 @@ export function transformDMMF(dmmf: DMMF.Document) {
           const replacer = transformModel(depsModel, models);
           const re = new RegExp(`::${d}::`, 'gm');
           raw = raw.replace(re, replacer.raw);
+          inputRaw = inputRaw.replace(re, replacer.inputRaw);
         }
       });
 
@@ -103,6 +130,7 @@ export function transformDMMF(dmmf: DMMF.Document) {
         const re = new RegExp(`::${enm.name}::`, 'gm');
         if (raw.match(re)) {
           raw = raw.replace(re, enm.name);
+          inputRaw = inputRaw.replace(re, enm.name);
           importStatements.add(`import { ${enm.name} } from './${enm.name}'`);
         }
       });
@@ -114,11 +142,17 @@ export function transformDMMF(dmmf: DMMF.Document) {
           raw,
           `export type ${model.name}Type = Static<typeof ${model.name}>`,
         ].join('\n\n'),
+        inputRawString: [
+          [...importStatements].join('\n'),
+          inputRaw,
+          `export type ${model.name}InputType = Static<typeof ${model.name}Input>`,
+        ].join('\n\n'),
       };
     }),
     ...enums.map((enm) => {
       return {
         name: enm.name,
+        inputRawString: null,
         rawString:
           'import {Type, Static} from "@sinclair/typebox"\n\n' +
           transformEnum(enm),
