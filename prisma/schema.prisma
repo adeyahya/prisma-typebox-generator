@@ -23,6 +23,8 @@ model User {
   posts       Post[]
   keywords    String[]
   biography   Json
+  decimal     Decimal
+  biginteger  BigInt
 }
 
 model Post {

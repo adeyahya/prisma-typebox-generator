@@ -15,6 +15,8 @@ export const PostInput = Type.Object({
       role: Type.Optional(Role),
       keywords: Type.Array(Type.String()),
       biography: Type.String(),
+      decimal: Type.Number(),
+      biginteger: Type.Integer(),
     })
   ),
   userId: Type.Optional(Type.Number()),

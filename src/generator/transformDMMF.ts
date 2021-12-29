@@ -5,8 +5,10 @@ const transformField = (field: DMMF.Field) => {
   let inputTokens = [];
   const deps = new Set();
 
-  if (['Int', 'Float'].includes(field.type)) {
+  if (['Int', 'Float', 'Decimal'].includes(field.type)) {
     tokens.push('Type.Number()');
+  } else if (['BigInt'].includes(field.type)) {
+    tokens.push('Type.Integer()');
   } else if (['String', 'DateTime', 'Json', 'Date'].includes(field.type)) {
     tokens.push('Type.String()');
   } else if (field.type === 'Boolean') {
