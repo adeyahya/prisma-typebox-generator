@@ -3,7 +3,7 @@ import { Role } from "./Role";
 
 export const PostInput = Type.Object({
   id: Type.Optional(Type.Number()),
-  user: Type.Optional(
+  user: Type.Partial(
     Type.Object({
       id: Type.Optional(Type.Number()),
       createdAt: Type.Optional(Type.String()),
