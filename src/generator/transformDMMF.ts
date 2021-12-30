@@ -32,17 +32,10 @@ const transformField = (field: DMMF.Field) => {
   }
 
   if ((!field.isRequired || field.hasDefaultValue) && !field.isId) {
-    if (field.kind !== 'object') {
-      tokens.splice(1, 0, 'Type.Optional(');
-      tokens.splice(tokens.length, 0, ')');
-      inputTokens.splice(1, 0, 'Type.Optional(');
-      inputTokens.splice(inputTokens.length, 0, ')');
-    } else {
-      tokens.splice(1, 0, 'Type.Partial(');
-      tokens.splice(tokens.length, 0, ')');
-      inputTokens.splice(1, 0, 'Type.Partial(');
-      inputTokens.splice(inputTokens.length, 0, ')');
-    }
+    tokens.splice(1, 0, 'Type.Optional(');
+    tokens.splice(tokens.length, 0, ')');
+    inputTokens.splice(1, 0, 'Type.Optional(');
+    inputTokens.splice(inputTokens.length, 0, ')');
   }
 
   return {
