@@ -18,6 +18,8 @@ export const User = Type.Object({
   ),
   keywords: Type.Array(Type.String()),
   biography: Type.String(),
+  decimal: Type.Number(),
+  biginteger: Type.Integer(),
 });
 
 export type UserType = Static<typeof User>;
