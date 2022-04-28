@@ -1,3 +1,10 @@
+## [2.0.2](https://github.com/adeyahya/prisma-typebox-generator/compare/v2.0.1...v2.0.2) (2022-04-28)
+
+
+### Bug Fixes
+
+* bug on decimal and bigint ([e191141](https://github.com/adeyahya/prisma-typebox-generator/commit/e1911413fba7f006b0b5392dd6770c653c78312b))
+
 ## [2.0.1](https://github.com/adeyahya/prisma-typebox-generator/compare/v2.0.0...v2.0.1) (2021-06-23)
 
 
