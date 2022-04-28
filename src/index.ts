@@ -25,6 +25,10 @@ generatorHandler({
         await fs.promises.mkdir(outputDir, {
           recursive: true,
         });
+        const barrelFile = path.join(outputDir, 'index.ts');
+        await fs.promises.writeFile(barrelFile, '', {
+          encoding: 'utf-8',
+        });
         await Promise.all(
           payload.map((n) => {
             const fsPromises = [];
@@ -39,6 +43,14 @@ generatorHandler({
                 },
               ),
             );
+
+            fsPromises.push(
+              fs.promises.appendFile(
+                barrelFile,
+                `export * from './${n.name}';\n`,
+                { encoding: 'utf-8' },
+              ),
+            );
             if (n.inputRawString) {
               fsPromises.push(
                 fs.promises.writeFile(
@@ -49,6 +61,13 @@ generatorHandler({
                   {
                     encoding: 'utf-8',
                   },
+                ),
+              );
+              fsPromises.push(
+                fs.promises.appendFile(
+                  barrelFile,
+                  `export * from './${n.name}Input';\n`,
+                  { encoding: 'utf-8' },
                 ),
               );
             }
