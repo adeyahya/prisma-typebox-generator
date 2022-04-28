@@ -103,7 +103,7 @@ enum Role {
 
 ## License: MIT
 
-Copyright (c) 2021 Ade Yahya Prasetyo
+Copyright (c) 2022 Ade Yahya Prasetyo
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
