@@ -1,6 +1,6 @@
 {
-  "name": "prisma-typebox-generator",
-  "version": "2.0.2",
+  "name": "jsbrain-prisma-typebox-generator",
+  "version": "2.0.3",
   "main": "dist/index.js",
   "license": "MIT",
   "files": [
@@ -20,13 +20,13 @@
     "typebox",
     "typebox-generator"
   ],
-  "homepage": "https://github.com/adeyahya/prisma-typebox-generator",
+  "homepage": "https://github.com/jsbrain/prisma-typebox-generator",
   "repository": {
-    "url": "https://github.com/adeyahya/prisma-typebox-generator.git"
+    "url": "https://github.com/jsbrain/prisma-typebox-generator.git"
   },
   "bugs": {
     "email": "adeyahyaprasetyo@gmail.com",
-    "url": "https://github.com/adeyahya/prisma-typebox-generator/issues"
+    "url": "https://github.com/jsbrain/prisma-typebox-generator/issues"
   },
   "dependencies": {
     "@prisma/generator-helper": "^2.20.1",

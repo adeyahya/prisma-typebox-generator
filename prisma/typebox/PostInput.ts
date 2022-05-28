@@ -1,5 +1,5 @@
-import { Type, Static } from "@sinclair/typebox";
-import { Role } from "./Role";
+import { Type, Static } from '@sinclair/typebox';
+import { Role } from './Role';
 
 export const PostInput = Type.Object({
   id: Type.Optional(Type.Number()),
@@ -17,7 +17,7 @@ export const PostInput = Type.Object({
       biography: Type.String(),
       decimal: Type.Number(),
       biginteger: Type.Integer(),
-    })
+    }),
   ),
   userId: Type.Optional(Type.Number()),
 });
