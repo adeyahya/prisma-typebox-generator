@@ -2,7 +2,7 @@ import { Type, Static } from "@sinclair/typebox";
 import { Role } from "./Role";
 
 export const PostInput = Type.Object({
-  id: Type.Optional(Type.Number()),
+  id: Type.Optional(Type.String()),
   user: Type.Optional(
     Type.Object({
       id: Type.Optional(Type.Number()),

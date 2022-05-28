@@ -25,8 +25,8 @@ const transformField = (field: DMMF.Field) => {
 
   inputTokens = [...tokens];
 
-  // @id cannot be optional except for input if it's auto increment
-  if (field.isId && (field?.default as any)?.name === 'autoincrement') {
+  // @id can be optional for input value if it has a default defined
+  if (field.isId && (field?.default as any)) {
     inputTokens.splice(1, 0, 'Type.Optional(');
     inputTokens.splice(inputTokens.length, 0, ')');
   }
