@@ -12,7 +12,7 @@ export const User = Type.Object({
   role: Type.Optional(Role),
   posts: Type.Array(
     Type.Object({
-      id: Type.String(),
+      id: Type.Number(),
       userId: Type.Optional(Type.Number()),
     })
   ),

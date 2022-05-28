@@ -1,6 +1,6 @@
 {
-  "name": "prisma-typebox-generator",
-  "version": "2.0.2",
+  "name": "jsbrain-prisma-typebox-generator",
+  "version": "2.0.3",
   "main": "dist/index.js",
   "license": "MIT",
   "files": [
