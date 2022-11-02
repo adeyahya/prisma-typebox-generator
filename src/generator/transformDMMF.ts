@@ -54,6 +54,7 @@ const transformField = (field: DMMF.Field) => {
     str: tokens.join(' ').concat('\n'),
     strInput: inputTokens.join(' ').concat('\n'),
     deps,
+    original: field,
   };
 };
 
@@ -67,7 +68,12 @@ const transformFields = (
 
   fields.map(transformField).forEach((field) => {
     // TODO: Remove and add raw models as separate files.
-    if (field.deps.size > 0 && config.includeRelations === 'false') {
+    if (
+      field.deps.size > 0 &&
+      config.includeRelations === 'false' &&
+      // Check if the field is a relation, so we'll still include enums.
+      !!field.original.relationName
+    ) {
       return;
     }
 
@@ -185,9 +191,13 @@ export function transformDMMF(
       enums.forEach((enm) => {
         const re = new RegExp(`::${enm.name}::`, 'gm');
         if (raw.match(re)) {
-          raw = raw.replace(re, enm.name);
-          inputRaw = inputRaw.replace(re, enm.name);
-          importStatements.add(`import { ${enm.name} } from './${enm.name}'`);
+          raw = raw.replace(re, prefixName(enm.name, config.prefix));
+          inputRaw = inputRaw.replace(re, prefixName(enm.name, config.prefix));
+          importStatements.add(
+            `import { ${prefixName(enm.name, config.prefix)} } from './${
+              enm.name
+            }'`,
+          );
         }
       });
 

@@ -1,4 +1,5 @@
 import { Type, Static } from "@sinclair/typebox";
+import { tbx_Role } from "./Role";
 
 export const tbx_PostInput = Type.Object({
   id: Type.Optional(Type.Number()),

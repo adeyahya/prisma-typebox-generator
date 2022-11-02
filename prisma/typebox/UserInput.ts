@@ -1,4 +1,5 @@
 import { Type, Static } from "@sinclair/typebox";
+import { tbx_Role } from "./Role";
 
 export const tbx_UserInput = Type.Object({
   id: Type.Optional(Type.Number()),
@@ -8,6 +9,7 @@ export const tbx_UserInput = Type.Object({
   is18: Type.Optional(Type.Boolean()),
   name: Type.Optional(Type.String()),
   successorId: Type.Optional(Type.Number()),
+  role: Type.Optional(tbx_Role),
   keywords: Type.Array(Type.String()),
   biography: Type.String(),
   decimal: Type.Number(),
