@@ -29,35 +29,35 @@
     "url": "https://github.com/jsbrain/prisma-typebox-generator/issues"
   },
   "dependencies": {
-    "@prisma/generator-helper": "^2.20.1",
-    "@prisma/sdk": "^2.20.1",
+    "@prisma/generator-helper": "^4.5.0",
+    "@prisma/sdk": "^4.0.0",
     "core-js": "3.10.0",
-    "prettier": "^2.3.0"
+    "prettier": "^2.7.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.13.14",
     "@babel/core": "^7.13.14",
     "@babel/preset-env": "^7.13.12",
     "@babel/preset-typescript": "^7.13.0",
-    "@prisma/client": "^2.20.1",
+    "@prisma/client": "^4.5.0",
     "@semantic-release/changelog": "^5.0.1",
     "@semantic-release/commit-analyzer": "^8.0.1",
     "@semantic-release/git": "^9.0.0",
     "@semantic-release/github": "^7.2.0",
     "@semantic-release/npm": "^7.1.0",
     "@semantic-release/release-notes-generator": "^9.0.2",
-    "@sinclair/typebox": "^0.16.7",
+    "@sinclair/typebox": "^0.25.2",
     "@types/jest": "26.0.22",
     "@types/node": "^14.14.37",
-    "ajv": "^8.0.5",
-    "ajv-formats": "^2.0.2",
+    "ajv": "^8.11.0",
+    "ajv-formats": "^2.1.1",
     "babel-jest": "^26.6.3",
     "jest": "26.6.3",
-    "prisma": "^2.20.1",
+    "prisma": "^4.5.0",
     "semantic-release": "^17.4.2",
     "ts-jest": "^26.5.4",
     "ts-node": "^9.1.1",
-    "typescript": "^4.2.3"
+    "typescript": "^4.8.4"
   },
   "scripts": {
     "generate": "prisma generate",
