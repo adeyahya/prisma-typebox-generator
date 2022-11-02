@@ -31,6 +31,8 @@ generator typebox {
   provider = "prisma-typebox-generator"
   // Optionally exclude relations from the generated types
   includeRelations = false // default: true
+  // Optionally prefix all types with a string
+  prefix = "tbx_" // default: ""
 }
 ```
 

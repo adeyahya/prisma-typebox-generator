@@ -5,6 +5,7 @@ generator client {
 generator docs {
   provider         = "node ./dist/index.js"
   includeRelations = false
+  prefix           = "tbx_"
 }
 
 datasource db {
