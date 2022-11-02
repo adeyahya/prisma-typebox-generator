@@ -1,5 +1,17 @@
 import type { DMMF } from '@prisma/generator-helper';
 
+type TransformDMMFOptions = {
+  prefix?: string;
+  includeRelations?: 'true' | 'false';
+};
+
+function prefixName(name: string, prefix?: string) {
+  if (prefix) {
+    return `${prefix}${name}`;
+  }
+  return name;
+}
+
 const transformField = (field: DMMF.Field) => {
   const tokens = [field.name + ':'];
   let inputTokens = [];
@@ -25,8 +37,8 @@ const transformField = (field: DMMF.Field) => {
 
   inputTokens = [...tokens];
 
-  // @id cannot be optional except for input if it's auto increment
-  if (field.isId && (field?.default as any)?.name === 'autoincrement') {
+  // @id can be optional for input value if it has a default defined
+  if (field.isId && (field?.default as any)) {
     inputTokens.splice(1, 0, 'Type.Optional(');
     inputTokens.splice(inputTokens.length, 0, ')');
   }
@@ -42,17 +54,32 @@ const transformField = (field: DMMF.Field) => {
     str: tokens.join(' ').concat('\n'),
     strInput: inputTokens.join(' ').concat('\n'),
     deps,
+    original: field,
   };
 };
 
-const transformFields = (fields: DMMF.Field[]) => {
+const transformFields = (
+  fields: DMMF.Field[],
+  config: TransformDMMFOptions,
+) => {
   let dependencies = new Set();
   const _fields: string[] = [];
   const _inputFields: string[] = [];
 
   fields.map(transformField).forEach((field) => {
+    // TODO: Remove and add raw models as separate files.
+    if (
+      field.deps.size > 0 &&
+      config.includeRelations === 'false' &&
+      // Check if the field is a relation, so we'll still include enums.
+      !!field.original.relationName
+    ) {
+      return;
+    }
+
     _fields.push(field.str);
     _inputFields.push(field.strInput);
+
     [...field.deps].forEach((d) => {
       dependencies.add(d);
     });
@@ -65,15 +92,25 @@ const transformFields = (fields: DMMF.Field[]) => {
   };
 };
 
-const transformModel = (model: DMMF.Model, models?: DMMF.Model[]) => {
-  const fields = transformFields(model.fields);
+const transformModel = (
+  config: TransformDMMFOptions,
+  model: DMMF.Model,
+  models?: DMMF.Model[],
+) => {
+  const fields = transformFields(model.fields, config);
   let raw = [
-    `${models ? '' : `export const ${model.name} = `}Type.Object({\n\t`,
+    `${
+      models ? '' : `export const ${prefixName(model.name, config.prefix)} = `
+    }Type.Object({\n\t`,
     fields.rawString,
     '})',
   ].join('\n');
   let inputRaw = [
-    `${models ? '' : `export const ${model.name}Input = `}Type.Object({\n\t`,
+    `${
+      models
+        ? ''
+        : `export const ${prefixName(model.name, config.prefix)}Input = `
+    }Type.Object({\n\t`,
     fields.rawInputString,
     '})',
   ].join('\n');
@@ -94,21 +131,44 @@ const transformModel = (model: DMMF.Model, models?: DMMF.Model[]) => {
   };
 };
 
-export const transformEnum = (enm: DMMF.DatamodelEnum) => {
+export const transformEnum = (
+  enm: DMMF.DatamodelEnum,
+  config: TransformDMMFOptions,
+) => {
   const values = enm.values
     .map((v) => `${v.name}: Type.Literal('${v.name}'),\n`)
     .join('');
 
   return [
-    `export const ${enm.name}Const = {`,
+    `export const ${prefixName(enm.name, config.prefix)}Const = {`,
     values,
     '}\n',
-    `export const ${enm.name} = Type.KeyOf(Type.Object(${enm.name}Const))\n`,
-    `export type ${enm.name}Type = Static<typeof ${enm.name}>`,
+    `export const ${prefixName(
+      enm.name,
+      config.prefix,
+    )} = Type.KeyOf(Type.Object(${prefixName(
+      enm.name,
+      config.prefix,
+    )}Const))\n`,
+    `export type ${prefixName(
+      enm.name,
+      config.prefix,
+    )}Type = Static<typeof ${prefixName(enm.name, config.prefix)}>`,
   ].join('\n');
 };
 
-export function transformDMMF(dmmf: DMMF.Document) {
+export function transformDMMF(
+  dmmf: DMMF.Document,
+  _config: TransformDMMFOptions,
+) {
+  const { includeRelations = 'true', prefix = undefined } = _config;
+
+  // Set default config!
+  const config: TransformDMMFOptions = {
+    includeRelations,
+    prefix,
+  };
+
   const { models, enums } = dmmf.datamodel;
   const importStatements = new Set([
     'import {Type, Static} from "@sinclair/typebox"',
@@ -116,12 +176,12 @@ export function transformDMMF(dmmf: DMMF.Document) {
 
   return [
     ...models.map((model) => {
-      let { raw, inputRaw, deps } = transformModel(model);
+      let { raw, inputRaw, deps } = transformModel(config, model);
 
       [...deps].forEach((d) => {
         const depsModel = models.find((m) => m.name === d) as DMMF.Model;
         if (depsModel) {
-          const replacer = transformModel(depsModel, models);
+          const replacer = transformModel(config, depsModel, models);
           const re = new RegExp(`::${d}::`, 'gm');
           raw = raw.replace(re, replacer.raw);
           inputRaw = inputRaw.replace(re, replacer.inputRaw);
@@ -131,23 +191,38 @@ export function transformDMMF(dmmf: DMMF.Document) {
       enums.forEach((enm) => {
         const re = new RegExp(`::${enm.name}::`, 'gm');
         if (raw.match(re)) {
-          raw = raw.replace(re, enm.name);
-          inputRaw = inputRaw.replace(re, enm.name);
-          importStatements.add(`import { ${enm.name} } from './${enm.name}'`);
+          raw = raw.replace(re, prefixName(enm.name, config.prefix));
+          inputRaw = inputRaw.replace(re, prefixName(enm.name, config.prefix));
+          importStatements.add(
+            `import { ${prefixName(enm.name, config.prefix)} } from './${
+              enm.name
+            }'`,
+          );
         }
       });
 
       return {
+        // TODO: Add prefix to file names as well?
+        // name: prefixName(model.name, config.prefix),
         name: model.name,
         rawString: [
           [...importStatements].join('\n'),
           raw,
-          `export type ${model.name}Type = Static<typeof ${model.name}>`,
+          `export type ${prefixName(
+            model.name,
+            config.prefix,
+          )}Type = Static<typeof ${prefixName(model.name, config.prefix)}>`,
         ].join('\n\n'),
         inputRawString: [
           [...importStatements].join('\n'),
           inputRaw,
-          `export type ${model.name}InputType = Static<typeof ${model.name}Input>`,
+          `export type ${prefixName(
+            model.name,
+            config.prefix,
+          )}InputType = Static<typeof ${prefixName(
+            model.name,
+            config.prefix,
+          )}Input>`,
         ].join('\n\n'),
       };
     }),
@@ -157,7 +232,7 @@ export function transformDMMF(dmmf: DMMF.Document) {
         inputRawString: null,
         rawString:
           'import {Type, Static} from "@sinclair/typebox"\n\n' +
-          transformEnum(enm),
+          transformEnum(enm, config),
       };
     }),
   ];
