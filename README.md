@@ -29,6 +29,8 @@ yarn add -D prisma-typebox-generator
 ```prisma
 generator typebox {
   provider = "prisma-typebox-generator"
+  // Optionally exclude relations from the generated types
+  includeRelations = false // default: true
 }
 ```
 
