@@ -3,7 +3,8 @@ generator client {
 }
 
 generator docs {
-  provider = "node ./dist/index.js"
+  provider         = "node ./dist/index.js"
+  includeRelations = false
 }
 
 datasource db {

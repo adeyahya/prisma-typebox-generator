@@ -1,5 +1,9 @@
 import type { DMMF } from '@prisma/generator-helper';
 
+type TransformDMMFOptions = {
+  includeRelations?: 'true' | 'false';
+};
+
 const transformField = (field: DMMF.Field) => {
   const tokens = [field.name + ':'];
   let inputTokens = [];
@@ -45,14 +49,23 @@ const transformField = (field: DMMF.Field) => {
   };
 };
 
-const transformFields = (fields: DMMF.Field[]) => {
+const transformFields = (
+  fields: DMMF.Field[],
+  config: TransformDMMFOptions,
+) => {
   let dependencies = new Set();
   const _fields: string[] = [];
   const _inputFields: string[] = [];
 
   fields.map(transformField).forEach((field) => {
+    // TODO: Remove and add raw models as separate files.
+    if (field.deps.size > 0 && config.includeRelations === 'false') {
+      return;
+    }
+
     _fields.push(field.str);
     _inputFields.push(field.strInput);
+
     [...field.deps].forEach((d) => {
       dependencies.add(d);
     });
@@ -65,8 +78,12 @@ const transformFields = (fields: DMMF.Field[]) => {
   };
 };
 
-const transformModel = (model: DMMF.Model, models?: DMMF.Model[]) => {
-  const fields = transformFields(model.fields);
+const transformModel = (
+  config: TransformDMMFOptions,
+  model: DMMF.Model,
+  models?: DMMF.Model[],
+) => {
+  const fields = transformFields(model.fields, config);
   let raw = [
     `${models ? '' : `export const ${model.name} = `}Type.Object({\n\t`,
     fields.rawString,
@@ -108,7 +125,17 @@ export const transformEnum = (enm: DMMF.DatamodelEnum) => {
   ].join('\n');
 };
 
-export function transformDMMF(dmmf: DMMF.Document) {
+export function transformDMMF(
+  dmmf: DMMF.Document,
+  _config: TransformDMMFOptions,
+) {
+  const { includeRelations = 'true' } = _config;
+
+  // Set default config!
+  const config: TransformDMMFOptions = {
+    includeRelations,
+  };
+
   const { models, enums } = dmmf.datamodel;
   const importStatements = new Set([
     'import {Type, Static} from "@sinclair/typebox"',
@@ -116,12 +143,12 @@ export function transformDMMF(dmmf: DMMF.Document) {
 
   return [
     ...models.map((model) => {
-      let { raw, inputRaw, deps } = transformModel(model);
+      let { raw, inputRaw, deps } = transformModel(config, model);
 
       [...deps].forEach((d) => {
         const depsModel = models.find((m) => m.name === d) as DMMF.Model;
         if (depsModel) {
-          const replacer = transformModel(depsModel, models);
+          const replacer = transformModel(config, depsModel, models);
           const re = new RegExp(`::${d}::`, 'gm');
           raw = raw.replace(re, replacer.raw);
           inputRaw = inputRaw.replace(re, replacer.inputRaw);
