@@ -168,7 +168,7 @@ export function createTransformer(generatorName: string) {
       values,
       '}\n',
       `export const ${enm.name} = Type.KeyOf(Type.Object(${enm.name}Const))\n`,
-      `export type ${enm.name}Type = Static<typeof ${enm.name}>`,
+      `export type ${enm.name} = Static<typeof ${enm.name}>`,
     ].join('\n');
   };
 
@@ -205,12 +205,12 @@ export function createTransformer(generatorName: string) {
           rawString: [
             [mainImport, ...importStatements].join('\n'),
             raw,
-            `export type ${model.name}Type = Static<typeof ${model.name}>`,
+            `export type ${model.name} = Static<typeof ${model.name}>`,
           ].join('\n\n'),
           inputRawString: [
             [mainImport, ...importStatements].join('\n'),
             inputRaw,
-            `export type ${model.name}InputType = Static<typeof ${model.name}Input>`,
+            `export type ${model.name}Input = Static<typeof ${model.name}Input>`,
           ].join('\n\n'),
         };
       }),
