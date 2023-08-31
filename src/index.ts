@@ -3,9 +3,9 @@ import { createTransformer } from './generator/transformDMMF';
 import { parseEnvValue } from '@prisma/internals';
 import * as fs from 'fs';
 import * as path from 'path';
-import prettier from 'prettier';
+import prettier, { Config as PrettierConfig } from 'prettier';
 
-interface GeneratorConfig {
+interface GeneratorConfig extends PrettierConfig {
   typeSuffix?: string;
 }
 
@@ -18,6 +18,10 @@ generatorHandler({
   },
   async onGenerate(options) {
     const generatorConfig = options.generator.config as GeneratorConfig;
+    const prettierOptions: PrettierConfig = {
+      ...generatorConfig,
+      parser: 'babel-ts',
+    };
     const transformDMMF = createTransformer(
       options.generator.name,
       generatorConfig.typeSuffix ?? '',
@@ -46,9 +50,7 @@ generatorHandler({
           fsPromises.push(
             fs.promises.writeFile(
               path.join(outputDir, n.name + '.ts'),
-              await prettier.format(n.rawString, {
-                parser: 'babel-ts',
-              }),
+              await prettier.format(n.rawString, prettierOptions),
               {
                 encoding: 'utf-8',
               },
@@ -66,9 +68,7 @@ generatorHandler({
             fsPromises.push(
               fs.promises.writeFile(
                 path.join(outputDir, n.name + 'Input.ts'),
-                await prettier.format(n.inputRawString, {
-                  parser: 'babel-ts',
-                }),
+                await prettier.format(n.inputRawString, prettierOptions),
                 {
                   encoding: 'utf-8',
                 },
