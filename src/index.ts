@@ -1,5 +1,5 @@
 import { generatorHandler } from '@prisma/generator-helper';
-import { transformDMMF } from './generator/transformDMMF';
+import { createTransformer } from './generator/transformDMMF';
 import * as fs from 'fs';
 import * as path from 'path';
 import { parseEnvValue } from '@prisma/sdk';
@@ -13,6 +13,7 @@ generatorHandler({
     };
   },
   async onGenerate(options) {
+    const transformDMMF = createTransformer(options.generator.name);
     const payload = transformDMMF(options.dmmf);
     if (options.generator.output) {
       const outputDir =
