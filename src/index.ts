@@ -5,8 +5,9 @@ import * as fs from 'fs';
 import * as path from 'path';
 import prettier, { Config as PrettierConfig } from 'prettier';
 
-interface GeneratorConfig extends PrettierConfig {
+interface GeneratorConfig {
   typeSuffix?: string;
+  prettierConfig?: string;
 }
 
 generatorHandler({
@@ -17,14 +18,24 @@ generatorHandler({
     };
   },
   async onGenerate(options) {
-    const generatorConfig = options.generator.config as GeneratorConfig;
+    const generatorConfig = options.generator
+      .config as unknown as GeneratorConfig;
     const prettierOptions: PrettierConfig = {
-      ...generatorConfig,
       parser: 'babel-ts',
     };
+    if (generatorConfig.prettierConfig) {
+      const config = JSON.parse(
+        fs.readFileSync(generatorConfig.prettierConfig, {
+          encoding: 'utf-8',
+        })
+      );
+      Object.keys(config).forEach((key) => {
+        (prettierOptions as any)[key] = config[key];
+      });
+    }
     const transformDMMF = createTransformer(
       options.generator.name,
-      generatorConfig.typeSuffix ?? '',
+      generatorConfig.typeSuffix ?? ''
     );
     const payload = transformDMMF(options.dmmf);
     if (!options.generator.output) {
@@ -53,16 +64,16 @@ generatorHandler({
               await prettier.format(n.rawString, prettierOptions),
               {
                 encoding: 'utf-8',
-              },
-            ),
+              }
+            )
           );
 
           fsPromises.push(
             fs.promises.appendFile(
               barrelFile,
               `export * from './${n.name}';\n`,
-              { encoding: 'utf-8' },
-            ),
+              { encoding: 'utf-8' }
+            )
           );
           if (n.inputRawString) {
             fsPromises.push(
@@ -71,24 +82,24 @@ generatorHandler({
                 await prettier.format(n.inputRawString, prettierOptions),
                 {
                   encoding: 'utf-8',
-                },
-              ),
+                }
+              )
             );
             fsPromises.push(
               fs.promises.appendFile(
                 barrelFile,
                 `export * from './${n.name}Input';\n`,
-                { encoding: 'utf-8' },
-              ),
+                { encoding: 'utf-8' }
+              )
             );
           }
 
           return Promise.all(fsPromises);
-        }),
+        })
       );
     } catch (e) {
       console.error(
-        'Error: unable to write files for Prisma Typebox Generator',
+        'Error: unable to write files for Prisma Typebox Generator'
       );
       throw e;
     }

@@ -1,5 +1,5 @@
-import { Type, Static } from "@sinclair/typebox";
-import { PostType } from "./PostType";
+import { Type, type Static } from '@sinclair/typebox';
+import { PostType } from './PostType';
 
 export const PostInput = Type.Object(
   {
@@ -7,7 +7,7 @@ export const PostInput = Type.Object(
     userId: Type.Optional(Type.Number()),
     type: PostType,
   },
-  { $id: "PostInput" },
+  { $id: 'PostInput' }
 );
 
 export type PostInput = Static<typeof PostInput>;

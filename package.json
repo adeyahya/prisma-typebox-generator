@@ -66,12 +66,6 @@
     "build": "npm run clean && babel src --out-dir dist --extensions '.ts'",
     " ": "semantic-release"
   },
-  "prettier": {
-    "tabWidth": 2,
-    "singleQuote": true,
-    "semi": true,
-    "trailingComma": "all"
-  },
   "bin": {
     "prisma-typebox-generator": "dist/cli.js"
   }

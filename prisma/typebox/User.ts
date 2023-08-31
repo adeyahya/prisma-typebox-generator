@@ -1,5 +1,5 @@
-import { Type, Static } from "@sinclair/typebox";
-import { Role } from "./Role";
+import { Type, type Static } from '@sinclair/typebox';
+import { Role } from './Role';
 
 export const User = Type.Object(
   {
@@ -17,16 +17,16 @@ export const User = Type.Object(
           id: Type.Number(),
           userId: Type.Optional(Type.Number()),
         },
-        { $id: "Post" },
-      ),
+        { $id: 'Post' }
+      )
     ),
     keywords: Type.Array(Type.String({ minLength: 3 }), { maxItems: 10 }),
-    biography: Type.String({ description: "field description" }),
-    decimal: Type.Number({ description: "used description" }),
-    biginteger: Type.Integer({ description: "multiline\ndescription" }),
+    biography: Type.String({ description: 'field description' }),
+    decimal: Type.Number({ description: 'used description' }),
+    biginteger: Type.Integer({ description: 'multiline\ndescription' }),
     unsigned: Type.Integer({ minimum: 0 }),
   },
-  { $id: "User", description: "model description" },
+  { $id: 'User', description: 'model description' }
 );
 
 export type User = Static<typeof User>;
