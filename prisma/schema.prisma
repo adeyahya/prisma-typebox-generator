@@ -41,11 +41,18 @@ model User {
   hidden      Int
 }
 
+enum PostType {
+  TEXT
+  IMAGE
+  VIDEO
+}
+
 model Post {
   id     Int   @id @default(autoincrement())
   /// @docs.hide
   user   User? @relation(fields: [userId], references: [id])
   userId Int?
+  type PostType
 }
 
 enum Role {
