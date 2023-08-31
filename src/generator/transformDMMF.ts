@@ -179,7 +179,7 @@ export function createTransformer(generatorName: string, typeSuffix = '') {
 
   function transformDMMF(dmmf: DMMF.Document) {
     const { models, enums } = dmmf.datamodel;
-    const mainImport = 'import {Type, Static} from "@sinclair/typebox"';
+    const mainImport = 'import { Type, type Static } from "@sinclair/typebox"';
 
     return [
       ...models.map((model) => {
