@@ -12,13 +12,10 @@ export const UserInput = Type.Object(
     successorId: Type.Optional(Type.Number()),
     role: Type.Optional(Role),
     posts: Type.Array(
-      Type.Object(
-        {
-          id: Type.Optional(Type.Number()),
-          userId: Type.Optional(Type.Number()),
-        },
-        { $id: "PostInput" },
-      ),
+      Type.Object({
+        id: Type.Optional(Type.Number()),
+        userId: Type.Optional(Type.Number()),
+      }),
     ),
     keywords: Type.Array(Type.String({ minLength: 3 }), { maxItems: 10 }),
     biography: Type.String({ description: "field description" }),
@@ -26,7 +23,7 @@ export const UserInput = Type.Object(
     biginteger: Type.Integer({ description: "multiline\ndescription" }),
     unsigned: Type.Integer({ minimum: 0 }),
   },
-  { $id: "UserInput", description: "model description" },
+  { description: "model description" },
 );
 
 export type UserInput = Static<typeof UserInput>;

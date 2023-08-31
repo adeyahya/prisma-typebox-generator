@@ -5,6 +5,6 @@ export const RoleConst = {
   ADMIN: Type.Literal("ADMIN"),
 };
 
-export const Role = Type.KeyOf(Type.Object(RoleConst), { $id: "Role" });
+export const Role = Type.KeyOf(Type.Object(RoleConst));
 
 export type Role = Static<typeof Role>;

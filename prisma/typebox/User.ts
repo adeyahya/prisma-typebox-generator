@@ -12,10 +12,13 @@ export const User = Type.Object(
     successorId: Type.Optional(Type.Number()),
     role: Type.Optional(Role),
     posts: Type.Array(
-      Type.Object({
-        id: Type.Number(),
-        userId: Type.Optional(Type.Number()),
-      })
+      Type.Object(
+        {
+          id: Type.Number(),
+          userId: Type.Optional(Type.Number()),
+        },
+        { $id: "Post" },
+      ),
     ),
     keywords: Type.Array(Type.String({ minLength: 3 }), { maxItems: 10 }),
     biography: Type.String({ description: "field description" }),
@@ -23,7 +26,7 @@ export const User = Type.Object(
     biginteger: Type.Integer({ description: "multiline\ndescription" }),
     unsigned: Type.Integer({ minimum: 0 }),
   },
-  { description: "model description" }
+  { $id: "User", description: "model description" },
 );
 
-export type UserType = Static<typeof User>;
+export type User = Static<typeof User>;
