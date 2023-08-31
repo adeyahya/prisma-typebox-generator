@@ -2,7 +2,6 @@ import { generatorHandler } from '@prisma/generator-helper';
 import { createTransformer } from './generator/transformDMMF';
 import * as fs from 'fs';
 import * as path from 'path';
-import { parseEnvValue } from '@prisma/sdk';
 import prettier from 'prettier';
 
 generatorHandler({
@@ -21,7 +20,10 @@ generatorHandler({
         typeof options.generator.output === 'string'
           ? (options.generator.output as unknown as string)
           : // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            parseEnvValue(options.generator.output);
+            '';
+      if (!outputDir) {
+        throw new Error('Must specify output for prisma-typebox-generator');
+      }
       try {
         await fs.promises.mkdir(outputDir, {
           recursive: true,
@@ -31,12 +33,12 @@ generatorHandler({
           encoding: 'utf-8',
         });
         await Promise.all(
-          payload.map((n) => {
+          payload.map(async (n) => {
             const fsPromises = [];
             fsPromises.push(
               fs.promises.writeFile(
                 path.join(outputDir, n.name + '.ts'),
-                prettier.format(n.rawString, {
+                await prettier.format(n.rawString, {
                   parser: 'babel-ts',
                 }),
                 {
@@ -56,7 +58,7 @@ generatorHandler({
               fsPromises.push(
                 fs.promises.writeFile(
                   path.join(outputDir, n.name + 'Input.ts'),
-                  prettier.format(n.inputRawString, {
+                  await prettier.format(n.inputRawString, {
                     parser: 'babel-ts',
                   }),
                   {
