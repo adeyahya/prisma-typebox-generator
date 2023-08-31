@@ -1,3 +1,10 @@
+# [2.1.0](https://github.com/adeyahya/prisma-typebox-generator/compare/v2.0.2...v2.1.0) (2023-08-31)
+
+
+### Features
+
+* documentation hints ([2e383fe](https://github.com/adeyahya/prisma-typebox-generator/commit/2e383fe7e964a0cfe7a130114e38a47707efaabd))
+
 ## [2.0.2](https://github.com/adeyahya/prisma-typebox-generator/compare/v2.0.1...v2.0.2) (2022-04-28)
 
 
