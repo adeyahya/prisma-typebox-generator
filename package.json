@@ -31,6 +31,7 @@
   "dependencies": {
     "@prisma/generator-helper": "^5.2.0",
     "@prisma/internals": "^5.2.0",
+    "c12": "^1.4.2",
     "core-js": "3.32.1",
     "prettier": "^3.0.3"
   },

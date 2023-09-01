@@ -4,6 +4,7 @@ import { parseEnvValue } from '@prisma/internals';
 import * as fs from 'fs';
 import * as path from 'path';
 import prettier, { Config as PrettierConfig } from 'prettier';
+import { loadConfig } from 'c12';
 
 interface GeneratorConfig {
   typeSuffix?: string;
@@ -24,14 +25,14 @@ generatorHandler({
       parser: 'babel-ts',
     };
     if (generatorConfig.prettierConfig) {
-      const config = JSON.parse(
-        fs.readFileSync(generatorConfig.prettierConfig, {
-          encoding: 'utf-8',
-        })
-      );
-      Object.keys(config).forEach((key) => {
-        (prettierOptions as any)[key] = config[key];
+      const { config } = await loadConfig({
+        configFile: generatorConfig.prettierConfig,
       });
+      if (config && typeof config === 'object') {
+        Object.keys(config).forEach((key) => {
+          (prettierOptions as any)[key] = config[key];
+        });
+      }
     }
     const transformDMMF = createTransformer(
       options.generator.name,
