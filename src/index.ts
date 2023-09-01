@@ -36,7 +36,7 @@ generatorHandler({
     }
     const transformDMMF = createTransformer(
       options.generator.name,
-      generatorConfig.typeSuffix ?? ''
+      generatorConfig.typeSuffix ?? '',
     );
     const payload = transformDMMF(options.dmmf);
     if (!options.generator.output) {
@@ -65,16 +65,16 @@ generatorHandler({
               await prettier.format(n.rawString, prettierOptions),
               {
                 encoding: 'utf-8',
-              }
-            )
+              },
+            ),
           );
 
           fsPromises.push(
             fs.promises.appendFile(
               barrelFile,
               `export * from './${n.name}';\n`,
-              { encoding: 'utf-8' }
-            )
+              { encoding: 'utf-8' },
+            ),
           );
           if (n.inputRawString) {
             fsPromises.push(
@@ -83,24 +83,24 @@ generatorHandler({
                 await prettier.format(n.inputRawString, prettierOptions),
                 {
                   encoding: 'utf-8',
-                }
-              )
+                },
+              ),
             );
             fsPromises.push(
               fs.promises.appendFile(
                 barrelFile,
                 `export * from './${n.name}Input';\n`,
-                { encoding: 'utf-8' }
-              )
+                { encoding: 'utf-8' },
+              ),
             );
           }
 
           return Promise.all(fsPromises);
-        })
+        }),
       );
     } catch (e) {
       console.error(
-        'Error: unable to write files for Prisma Typebox Generator'
+        'Error: unable to write files for Prisma Typebox Generator',
       );
       throw e;
     }

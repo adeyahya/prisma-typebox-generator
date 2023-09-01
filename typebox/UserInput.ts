@@ -1,5 +1,5 @@
-import { Type, Static } from "@sinclair/typebox";
-import { Role } from "./Role";
+import { Type, Static } from '@sinclair/typebox';
+import { Role } from './Role';
 
 export const UserInput = Type.Object(
   {
@@ -18,12 +18,12 @@ export const UserInput = Type.Object(
       }),
     ),
     keywords: Type.Array(Type.String({ minLength: 3 }), { maxItems: 10 }),
-    biography: Type.String({ description: "field description" }),
-    decimal: Type.Number({ description: "used description" }),
-    biginteger: Type.Integer({ description: "multiline\ndescription" }),
+    biography: Type.String({ description: 'field description' }),
+    decimal: Type.Number({ description: 'used description' }),
+    biginteger: Type.Integer({ description: 'multiline\ndescription' }),
     unsigned: Type.Integer({ minimum: 0 }),
   },
-  { description: "model description" },
+  { description: 'model description' },
 );
 
 export type UserInput = Static<typeof UserInput>;

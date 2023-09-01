@@ -7,7 +7,7 @@ export const Post = Type.Object(
     userId: Type.Optional(Type.Number()),
     type: PostType,
   },
-  { $id: 'Post' }
+  { $id: 'Post' },
 );
 
 export type Post = Static<typeof Post>;
