@@ -1,6 +1,7 @@
 import type { DMMF } from '@prisma/generator-helper';
+import { ObjectOptions } from '@sinclair/typebox';
 
-export function createTransformer(generatorName: string) {
+export function createTransformer(generatorName: string, typeSuffix = '') {
   const transformField = (field: DMMF.Field) => {
     const lineRegex = new RegExp(`^@${generatorName}\\.([a-z]+) (.+)`);
 
@@ -127,19 +128,23 @@ export function createTransformer(generatorName: string) {
       .filter((line) => !line.startsWith('@'))
       .join('\n')
       .trim();
-    const optionsStr = description?.length
-      ? `, { description: ${JSON.stringify(description)} }`
-      : '';
+    const options: ObjectOptions = {
+      $id: model.name,
+    };
+    if (description?.length) {
+      options.description = description;
+    }
     const fields = transformFields(model.fields);
     let raw = [
       `${models ? '' : `export const ${model.name} = `}Type.Object({\n\t`,
       fields.rawString,
-      `}${optionsStr})`,
+      `}, ${JSON.stringify(options)})`,
     ].join('\n');
+    options.$id = `${model.name}Input`;
     let inputRaw = [
       `${models ? '' : `export const ${model.name}Input = `}Type.Object({\n\t`,
       fields.rawInputString,
-      `}${optionsStr})`,
+      `}, ${JSON.stringify(options)})`,
     ].join('\n');
 
     if (Array.isArray(models)) {
@@ -167,14 +172,14 @@ export function createTransformer(generatorName: string) {
       `export const ${enm.name}Const = {`,
       values,
       '}\n',
-      `export const ${enm.name} = Type.KeyOf(Type.Object(${enm.name}Const))\n`,
-      `export type ${enm.name}Type = Static<typeof ${enm.name}>`,
+      `export const ${enm.name} = Type.KeyOf(Type.Object(${enm.name}Const), { $id: "${enm.name}"})\n`,
+      `export type ${enm.name}${typeSuffix} = Static<typeof ${enm.name}>`,
     ].join('\n');
   };
 
   function transformDMMF(dmmf: DMMF.Document) {
     const { models, enums } = dmmf.datamodel;
-    const mainImport = 'import {Type, Static} from "@sinclair/typebox"';
+    const mainImport = 'import { Type, type Static } from "@sinclair/typebox"';
 
     return [
       ...models.map((model) => {
@@ -205,12 +210,12 @@ export function createTransformer(generatorName: string) {
           rawString: [
             [mainImport, ...importStatements].join('\n'),
             raw,
-            `export type ${model.name}Type = Static<typeof ${model.name}>`,
+            `export type ${model.name}${typeSuffix} = Static<typeof ${model.name}>`,
           ].join('\n\n'),
           inputRawString: [
             [mainImport, ...importStatements].join('\n'),
             inputRaw,
-            `export type ${model.name}InputType = Static<typeof ${model.name}Input>`,
+            `export type ${model.name}Input = Static<typeof ${model.name}Input>`,
           ].join('\n\n'),
         };
       }),
