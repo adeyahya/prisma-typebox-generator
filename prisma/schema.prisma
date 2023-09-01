@@ -6,8 +6,6 @@ generator docs {
   provider = "node ./dist/index.js"
   typeSuffix = ""
   prettierConfig = ".prettierrc"
-  tabWidth = 4
-  semi = false
 }
 
 datasource db {
