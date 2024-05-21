@@ -4,7 +4,8 @@
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 [![Open Source? Yes!](https://badgen.net/badge/Open%20Source%20%3F/Yes%21/blue?icon=github)](https://github.com/Naereen/badges/)
 
-# Prisma Typebox Generator
+# Prisma Typebox Generator (Unmaintained)
+Please use [prismabox](https://github.com/m1212e/prismabox) instead
 
 A generator, which takes a Prisma 2 `schema.prisma` and generates a typebox snippets.
 
