@@ -1,9 +1,9 @@
-import { Type, type Static } from '@sinclair/typebox';
+import { Type, Static } from '@sinclair/typebox';
 import { Role } from './Role';
 
-export const User = Type.Object(
+export const UserInput = Type.Object(
   {
-    id: Type.Number(),
+    id: Type.Optional(Type.Number()),
     createdAt: Type.Optional(Type.String()),
     email: Type.String(),
     weight: Type.Optional(Type.Number()),
@@ -12,13 +12,10 @@ export const User = Type.Object(
     successorId: Type.Optional(Type.Number()),
     role: Type.Optional(Role),
     posts: Type.Array(
-      Type.Object(
-        {
-          id: Type.Number(),
-          userId: Type.Optional(Type.Number()),
-        },
-        { $id: 'Post' },
-      ),
+      Type.Object({
+        id: Type.Optional(Type.Number()),
+        userId: Type.Optional(Type.Number()),
+      }),
     ),
     keywords: Type.Array(Type.String({ minLength: 3 }), { maxItems: 10 }),
     biography: Type.String({ description: 'field description' }),
@@ -26,7 +23,7 @@ export const User = Type.Object(
     biginteger: Type.Integer({ description: 'multiline\ndescription' }),
     unsigned: Type.Integer({ minimum: 0 }),
   },
-  { $id: 'User', description: 'model description' },
+  { description: 'model description' },
 );
 
-export type User = Static<typeof User>;
+export type UserInput = Static<typeof UserInput>;
