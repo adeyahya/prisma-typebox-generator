@@ -4,17 +4,17 @@ import { Role } from "./Role";
 export const User = Type.Object(
   {
     id: Type.Number(),
-    createdAt: Type.Optional(Type.String()),
+    createdAt: Type.Union([Type.String(), Type.Null()]),
     email: Type.String(),
-    weight: Type.Optional(Type.Number()),
-    is18: Type.Optional(Type.Boolean()),
-    name: Type.Optional(Type.String()),
-    successorId: Type.Optional(Type.Number()),
-    role: Type.Optional(Role),
+    weight: Type.Union([Type.Number(), Type.Null()]),
+    is18: Type.Union([Type.Boolean(), Type.Null()]),
+    name: Type.Union([Type.String(), Type.Null()]),
+    successorId: Type.Union([Type.Number(), Type.Null()]),
+    role: Type.Union([Role, Type.Null()]),
     posts: Type.Array(
       Type.Object({
         id: Type.Number(),
-        userId: Type.Optional(Type.Number()),
+        userId: Type.Union([Type.Number(), Type.Null()]),
       })
     ),
     keywords: Type.Array(Type.String({ minLength: 3 }), { maxItems: 10 }),
